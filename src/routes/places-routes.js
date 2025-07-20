@@ -39,7 +39,7 @@ router.get("/user/:uid", (req, res, next) => {
     return p.creator === userId;
   });
 
-  if (!places.places) {
+  if (places.length === 0) {
     return next(
       new HttpError("Could not find places for the provided user id", 404)
     );
