@@ -8,7 +8,9 @@ const getUsers = async (req, res, next) => {
   try {
     users = await User.find();
   } catch (err) {
-    return next(HttpError("Something went wrong, could not fetch users.", 500));
+    return next(
+      new HttpError("Something went wrong, could not fetch users.", 500)
+    );
   }
 
   res
@@ -23,35 +25,37 @@ const signUpUser = async (req, res, next) => {
     return next(new HttpError("Invalid inputs. Please check your data", 422));
   }
 
-  const { name, email, password } = req.body;
+  const { name, email, password, places } = req.body;
 
   let hasUser;
 
   try {
-    hasUser = await User.find({ email: email });
+    hasUser = await User.findOne({ email: email });
   } catch (err) {
     return next(
       new HttpError("Something went wrong, Could not sign up user", 500)
     );
   }
 
-  if (!hasUser) {
+  if (hasUser) {
     return next(
       new HttpError("Email already exists, could not create user", 422)
     );
   }
-
   const createdUser = new User({
     name,
     email,
+    image:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Guy_Sebastian_2014.jpg/500px-Guy_Sebastian_2014.jpg",
     password,
+    places: places || "none",
   });
 
   try {
     await createdUser.save();
   } catch (err) {
     return next(
-      new HttpError("Something went wrong, Could not sign up user", 500)
+      new HttpError(err + "Something went wrong, Could not sign up user", 500)
     );
   }
 
