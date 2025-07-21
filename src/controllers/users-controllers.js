@@ -25,7 +25,7 @@ const signUpUser = async (req, res, next) => {
     return next(new HttpError("Invalid inputs. Please check your data", 422));
   }
 
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   let hasUser;
 
@@ -48,7 +48,7 @@ const signUpUser = async (req, res, next) => {
     image:
       "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Guy_Sebastian_2014.jpg/500px-Guy_Sebastian_2014.jpg",
     password,
-    places: places || "none",
+    places: [],
   });
 
   try {
