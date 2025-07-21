@@ -6,6 +6,12 @@ const placesRoutes = require("./routes/places-routes");
 const userRoutes = require("./routes/users-routes");
 const HttpError = require("./models/http-error");
 
+const MONGODB_USERNAME = process.env.MONGODB_USERNAME;
+const MONGODB_PASSWORD = process.env.MONGODB_PSWD;
+const MONGODB_DB_NAME = "productsDB";
+
+const url = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@placescluster0.ydq4ewd.mongodb.net/${MONGODB_DB_NAME}?retryWrites=true&w=majority&appName=PlacesCluster0`;
+
 const app = express();
 
 app.use(bodyParser.json());
@@ -27,4 +33,12 @@ app.use((error, req, res, next) => {
     .json({ message: error.message || "An unknown error occurred!" });
 });
 
-app.listen(5001);
+mongoose
+  .connect(url)
+  .then(() => {
+    console.log("Database connection successful!");
+    app.listen(5001);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
