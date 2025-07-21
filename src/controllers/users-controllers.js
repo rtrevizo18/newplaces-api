@@ -1,27 +1,22 @@
 const uuid = require("uuid");
 const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
+const User = require("../models/user");
 
-let DUMMY_USERS = [
-  {
-    id: "u1",
-    name: "Ricardo Trevizo",
-    email: "ricardotrevizo18@gmail.com",
-    password: "mexico18",
-  },
-  {
-    id: "u2",
-    name: "Jenny Trevizo",
-    email: "jennytrevizo18@gmail.com",
-    password: "monsali",
-  },
-];
+const getUsers = async (req, res, next) => {
+  let users;
+  try {
+    users = await User.find();
+  } catch (err) {
+    return next(HttpError("Something went wrong, could not fetch users.", 500));
+  }
 
-const getUsers = (req, res, next) => {
-  res.status(200).json({ users: DUMMY_USERS });
+  res
+    .status(200)
+    .json({ users: users.map((user) => user.toObject({ getters: true })) });
 };
 
-const signUpUser = (req, res, next) => {
+const signUpUser = async (req, res, next) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -30,30 +25,51 @@ const signUpUser = (req, res, next) => {
 
   const { name, email, password } = req.body;
 
-  const hasUser = DUMMY_USERS.find((u) => u.email === email);
+  let hasUser;
 
-  if (hasUser) {
+  try {
+    hasUser = await User.find({ email: email });
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong, Could not sign up user", 500)
+    );
+  }
+
+  if (!hasUser) {
     return next(
       new HttpError("Email already exists, could not create user", 422)
     );
   }
 
-  const createdUser = {
-    id: uuid.v4(),
+  const createdUser = new User({
     name,
     email,
     password,
-  };
+  });
 
-  DUMMY_USERS.push(createdUser);
+  try {
+    await createdUser.save();
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong, Could not sign up user", 500)
+    );
+  }
 
-  res.status(201).json({ user: createdUser });
+  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
 };
 
-const logInUser = (req, res, next) => {
+const logInUser = async (req, res, next) => {
   const { email, password } = req.body;
 
-  const foundUser = DUMMY_USERS.find((p) => p.email === email);
+  let foundUser;
+
+  try {
+    foundUser = await User.findOne({ email: email });
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong, Could not log in user", 500)
+    );
+  }
 
   if (!foundUser || foundUser.password !== password) {
     return next(
