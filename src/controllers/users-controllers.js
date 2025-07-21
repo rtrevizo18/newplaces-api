@@ -6,7 +6,7 @@ const User = require("../models/user");
 const getUsers = async (req, res, next) => {
   let users;
   try {
-    users = await User.find();
+    users = await User.find({}, "-password");
   } catch (err) {
     return next(
       new HttpError("Something went wrong, could not fetch users.", 500)
