@@ -8,7 +8,7 @@ const HttpError = require("./models/http-error");
 
 const MONGODB_USERNAME = process.env.MONGODB_USERNAME;
 const MONGODB_PASSWORD = process.env.MONGODB_PSWD;
-const MONGODB_DB_NAME = "productsDB";
+const MONGODB_DB_NAME = "places";
 
 const url = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@placescluster0.ydq4ewd.mongodb.net/${MONGODB_DB_NAME}?retryWrites=true&w=majority&appName=PlacesCluster0`;
 
