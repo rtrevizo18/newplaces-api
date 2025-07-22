@@ -64,7 +64,9 @@ const createPlace = async (req, res, next) => {
   try {
     coordinates = await getCoordsForAddress(address);
   } catch (err) {
-    return next(error);
+    return next(
+      new HttpError("External dependency failed, please try again.", 503)
+    );
   }
 
   const createdPlace = new Place({
