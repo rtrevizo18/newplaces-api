@@ -2,6 +2,7 @@ const uuid = require("uuid");
 const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
+const path = require("path");
 
 const getUsers = async (req, res, next) => {
   let users;
@@ -42,11 +43,13 @@ const signUpUser = async (req, res, next) => {
       new HttpError("Email already exists, could not create user", 422)
     );
   }
+
+  const fullPath = "uploads" + req.file.path.split("uploads")[1];
+
   const createdUser = new User({
     name,
     email,
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Guy_Sebastian_2014.jpg/500px-Guy_Sebastian_2014.jpg",
+    image: fullPath,
     password,
     places: [],
   });
