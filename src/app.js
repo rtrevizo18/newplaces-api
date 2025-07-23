@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -17,6 +18,11 @@ const url = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@placescluster
 const app = express();
 
 app.use(bodyParser.json());
+
+app.use(
+  "/uploads/images",
+  express.static(path.join(__dirname, "..", "uploads", "images"))
+);
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
