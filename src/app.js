@@ -12,9 +12,9 @@ const HttpError = require("./models/http-error");
 
 const MONGODB_USERNAME = process.env.MONGODB_USERNAME;
 const MONGODB_PASSWORD = process.env.MONGODB_PSWD;
-const MONGODB_DB_NAME = "mern";
+const MONGODB_DB = process.env.MONGODB_DB;
 
-const url = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@placescluster0.ydq4ewd.mongodb.net/${MONGODB_DB_NAME}?retryWrites=true&w=majority&appName=PlacesCluster0`;
+const url = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@placescluster0.ydq4ewd.mongodb.net/${MONGODB_DB}?retryWrites=true&w=majority&appName=PlacesCluster0`;
 
 const app = express();
 
