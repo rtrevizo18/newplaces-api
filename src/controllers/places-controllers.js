@@ -1,4 +1,4 @@
-const uuid = require("uuid");
+const fs = require("fs");
 const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 const getCoordsForAddress = require("../util/location");
@@ -64,13 +64,14 @@ const createPlace = async (req, res, next) => {
     return next(err);
   }
 
+  const fullPath = "uploads" + req.file.path.split("uploads")[1];
+
   const createdPlace = new Place({
     title,
     description,
     address,
     location: coordinates,
-    image:
-      "https://flatironnomad.nyc/wp-content/uploads/2023/04/esb-header-history-scaled.jpg",
+    image: fullPath,
     creator,
   });
 
@@ -153,6 +154,8 @@ const deletePlaceById = async (req, res, next) => {
     );
   }
 
+  const imagePath = "../../" + place.image;
+
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -165,6 +168,10 @@ const deletePlaceById = async (req, res, next) => {
       new HttpError("Something went wrong, Could not delete place", 500)
     );
   }
+
+  fs.unlink(imagePath, (err) => {
+    console.log(err);
+  });
 
   res.status(200).json({ message: "Place deleted successfully" });
 };
