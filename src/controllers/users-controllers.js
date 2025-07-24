@@ -112,7 +112,7 @@ const logInUser = async (req, res, next) => {
 
   let isValidPassword = false;
   try {
-    isValidPassword = await bcrypt.compare(password, existingUser.password);
+    isValidPassword = await bcrypt.compare(password, foundUser.password);
   } catch (err) {
     return next(new HttpError("Could not log you in, please try again.", 500));
   }
@@ -134,7 +134,7 @@ const logInUser = async (req, res, next) => {
     );
   } catch (err) {
     return next(
-      new HttpError(err + "Something went wrong, Could not log in user", 500)
+      new HttpError("Something went wrong, Could not log in user", 500)
     );
   }
 
