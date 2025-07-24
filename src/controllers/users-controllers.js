@@ -106,7 +106,7 @@ const logInUser = async (req, res, next) => {
 
   if (!foundUser) {
     return next(
-      new HttpError("Email or password is incorrect. Please try again", 401)
+      new HttpError("Email or password is incorrect. Please try again", 403)
     );
   }
 
@@ -119,7 +119,7 @@ const logInUser = async (req, res, next) => {
 
   if (!isValidPassword) {
     return next(
-      new HttpError("Email or password is incorrect. Please try again", 401)
+      new HttpError("Email or password is incorrect. Please try again", 403)
     );
   }
 
