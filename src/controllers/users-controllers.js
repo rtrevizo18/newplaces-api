@@ -1,9 +1,10 @@
-const uuid = require("uuid");
 const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
-const path = require("path");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const getUsers = async (req, res, next) => {
   let users;
@@ -70,7 +71,24 @@ const signUpUser = async (req, res, next) => {
     );
   }
 
-  res.status(201).json({ user: createdUser.toObject({ getters: true }) });
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: createdUser.id, email: createdUser.email },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+  } catch (err) {
+    return next(
+      new HttpError(err + "Something went wrong, Could not sign up user", 500)
+    );
+  }
+
+  res
+    .status(201)
+    .json({ userId: createdUser.id, email: createdUser.email, token });
 };
 
 const logInUser = async (req, res, next) => {
@@ -105,10 +123,22 @@ const logInUser = async (req, res, next) => {
     );
   }
 
-  res.status(200).json({
-    message: "Logged in!",
-    user: foundUser.toObject({ getters: true }),
-  });
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: foundUser.id, email: foundUser.email },
+      JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+  } catch (err) {
+    return next(
+      new HttpError(err + "Something went wrong, Could not log in user", 500)
+    );
+  }
+
+  res.status(200).json({ userId: foundUser.id, email: foundUser.email, token });
 };
 
 exports.getUsers = getUsers;
