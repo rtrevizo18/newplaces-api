@@ -1,4 +1,6 @@
-require("dotenv").config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 const fs = require("fs");
 const path = require("path");
 
@@ -15,6 +17,8 @@ const MONGODB_PASSWORD = process.env.MONGODB_PSWD;
 const MONGODB_DB = process.env.MONGODB_DB;
 
 const url = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@placescluster0.ydq4ewd.mongodb.net/${MONGODB_DB}?retryWrites=true&w=majority&appName=PlacesCluster0`;
+
+const PORT = process.env.PORT; // 5001 on dev branch
 
 const app = express();
 
@@ -61,7 +65,7 @@ mongoose
   .connect(url)
   .then(() => {
     console.log("Database connection successful!");
-    app.listen(5001);
+    app.listen(PORT);
   })
   .catch((err) => {
     console.log(err);
