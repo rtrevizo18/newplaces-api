@@ -68,7 +68,9 @@ const createPlace = async (req, res, next) => {
   try {
     user = await User.findById(req.userData.userId);
   } catch (err) {
-    return next(new HttpError("Creating place failed, please try again", 500));
+    return next(
+      new HttpError(err + "Creating place failed, please try again", 500)
+    );
   }
 
   if (!user) {
@@ -101,7 +103,7 @@ const createPlace = async (req, res, next) => {
     sess.commitTransaction();
   } catch (err) {
     const error = new HttpError(
-      "Creating place failed. Please try again.",
+      err + "Creating place failed. Please try again.",
       500
     );
     return next(error);
