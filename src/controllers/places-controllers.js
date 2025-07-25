@@ -78,7 +78,9 @@ const createPlace = async (req, res, next) => {
   try {
     await sendImage(req);
   } catch (err) {
-    return next(new HttpError("Creating place failed, please try again", 500));
+    return next(
+      new HttpError(err + "Creating place failed, please try again", 500)
+    );
   }
 
   const createdPlace = new Place({
