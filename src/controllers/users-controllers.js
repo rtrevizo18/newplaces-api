@@ -57,7 +57,9 @@ const signUpUser = async (req, res, next) => {
   try {
     await sendImage(req);
   } catch (err) {
-    return next(new HttpError("Could not create user, please try again.", 500));
+    return next(
+      new HttpError(err + "Could not create user, please try again.", 500)
+    );
   }
 
   const createdUser = new User({
