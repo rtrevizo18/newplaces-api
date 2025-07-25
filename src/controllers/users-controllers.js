@@ -3,6 +3,7 @@ const HttpError = require("../models/http-error");
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { sendImage } = require("../util/aws");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -46,8 +47,6 @@ const signUpUser = async (req, res, next) => {
     );
   }
 
-  const fullPath = "uploads" + req.file.path.split("uploads")[1];
-
   let hashedPassword;
   try {
     hashedPassword = await bcrypt.hash(password, 12);
@@ -55,10 +54,16 @@ const signUpUser = async (req, res, next) => {
     return next(new HttpError("Could not create user, please try again.", 500));
   }
 
+  try {
+    await sendImage(req);
+  } catch (err) {
+    return next(new HttpError("Could not create user, please try again.", 500));
+  }
+
   const createdUser = new User({
     name,
     email,
-    image: fullPath,
+    image: req.file.s3key,
     password: hashedPassword,
     places: [],
   });

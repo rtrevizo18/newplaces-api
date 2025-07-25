@@ -7,6 +7,7 @@ const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const { deleteImage } = require("./util/aws");
 
 const placesRoutes = require("./routes/places-routes");
 const userRoutes = require("./routes/users-routes");
@@ -23,11 +24,6 @@ const PORT = process.env.PORT; // 5001 on dev branch
 const app = express();
 
 app.use(bodyParser.json());
-
-app.use(
-  "/uploads/images",
-  express.static(path.join(__dirname, "..", "uploads", "images"))
-);
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -47,11 +43,13 @@ app.use((req, res, next) => {
   return next(new HttpError("Could not find this route.", 404));
 });
 
-app.use((error, req, res, next) => {
-  if (req.file) {
-    fs.unlink(req.file.path, (err) => {
-      console.log("Error occurred, image deleted");
-    });
+app.use(async (error, req, res, next) => {
+  if (req.file && req.file.s3key) {
+    try {
+      await deleteImage(req.file.s3key);
+    } catch (err) {
+      console.log("Failed to delete image from S3");
+    }
   }
   if (res.headersSent) {
     return next(error);

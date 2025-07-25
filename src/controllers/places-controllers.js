@@ -5,6 +5,7 @@ const getCoordsForAddress = require("../util/location");
 const Place = require("../models/place");
 const User = require("../models/user");
 const { default: mongoose } = require("mongoose");
+const { sendImage, deleteImage } = require("../util/aws");
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -64,17 +65,6 @@ const createPlace = async (req, res, next) => {
     return next(err);
   }
 
-  const fullPath = "uploads" + req.file.path.split("uploads")[1];
-
-  const createdPlace = new Place({
-    title,
-    description,
-    address,
-    location: coordinates,
-    image: fullPath,
-    creator: req.userData.userId,
-  });
-
   let user;
   try {
     user = await User.findById(req.userData.userId);
@@ -85,6 +75,21 @@ const createPlace = async (req, res, next) => {
   if (!user) {
     return next(new HttpError("Could not find user for provided id", 404));
   }
+
+  try {
+    await sendImage(req);
+  } catch (err) {
+    return next(new HttpError("Creating place failed, please try again", 500));
+  }
+
+  const createdPlace = new Place({
+    title,
+    description,
+    address,
+    location: coordinates,
+    image: req.file.s3key,
+    creator: req.userData.userId,
+  });
 
   try {
     const sess = await mongoose.startSession();
@@ -177,9 +182,11 @@ const deletePlaceById = async (req, res, next) => {
     );
   }
 
-  fs.unlink(imagePath, (err) => {
-    console.log(err);
-  });
+  try {
+    await deleteImage(place.image);
+  } catch (err) {
+    console.log("Place could not be deleted");
+  }
 
   res.status(200).json({ message: "Place deleted successfully" });
 };
