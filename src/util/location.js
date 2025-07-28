@@ -12,7 +12,10 @@ const errorHandling = (data) => {
         422
       );
     default:
-      throw new HttpError(err + "Creating place failed, please try again", 500);
+      throw new HttpError(
+        JSON.stringify(data) + "Creating place failed, please try again",
+        500
+      );
   }
 };
 
