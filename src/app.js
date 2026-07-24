@@ -11,23 +11,26 @@ const placesRoutes = require("./routes/places-routes");
 const userRoutes = require("./routes/users-routes");
 const HttpError = require("./models/http-error");
 
-const MONGODB_USERNAME = process.env.MONGODB_USERNAME;
-const MONGODB_PASSWORD = process.env.MONGODB_PSWD;
-const MONGODB_DB = process.env.MONGODB_DB;
-
-const url = `mongodb+srv://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@placescluster0.ydq4ewd.mongodb.net/${MONGODB_DB}?retryWrites=true&w=majority&appName=PlacesCluster0`;
-
+const URI = process.env.MONGODB_URI;
 const PORT = process.env.PORT; // 5001 on dev branch
 
 const app = express();
 
 app.use(bodyParser.json());
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://newplaces-e2d77.web.app",
+];
+
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
   res.setHeader(
     "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization",
   );
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
   next();
@@ -58,7 +61,7 @@ app.use(async (error, req, res, next) => {
 });
 
 mongoose
-  .connect(url)
+  .connect(URI)
   .then(() => {
     console.log("Database connection successful!");
     app.listen(PORT);
